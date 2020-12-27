@@ -142,6 +142,11 @@ class Leaser(object):
             # that in the event of a badly behaving actor, we can drop messages
             # and allow the Pub/Sub server to resend them.
             cutoff = time.time() - self._manager.flow_control.max_lease_duration
+            
+            # Add some debugging
+            for ack_id, item in six.iteritems(leased_messages):
+               print(f"[Lease manager] ack_id = {ack_id[0:2]}..{ack_id[len(ack_id)-4:len(ack_id)]}; seconds to drop = {round(item.sent_time - cutoff)} ")
+
             to_drop = [
                 requests.DropRequest(ack_id, item.size, item.ordering_key)
                 for ack_id, item in six.iteritems(leased_messages)
